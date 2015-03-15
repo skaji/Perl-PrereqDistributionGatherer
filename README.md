@@ -19,37 +19,37 @@ Perl::PrereqDistributionGatherer gathers all prerequisite distributions for some
 
 # METHODS
 
-### `my $gatherer = Perl::PrereqDistributionGatherer->new`
+- `my $gatherer = Perl::PrereqDistributionGatherer->new`
 
-Constructor. Currently any arguments are ignored.
+    Constructor. Currently any arguments are ignored.
 
-### `my ($dists, $core, $miss) = $gatherer->gather($modules, %option)`
+- `my ($dists, $core, $miss) = $gatherer->gather($modules, %option)`
 
-Gatherer distributions which are prerequisite for `$modules`.
-The return values are:
+    Gatherer distributions which are prerequisite for `$modules`.
+    The return values are:
 
-- `$dists`
+    - `$dists`
 
-    Array reference of prerequisite distributions, which are instances of [Distribution::Metadata](https://metacpan.org/pod/Distribution::Metadata).
+        Array reference of prerequisite distributions, which are instances of [Distribution::Metadata](https://metacpan.org/pod/Distribution::Metadata).
 
-- `$core`
+    - `$core`
 
-    Array reference of prerequisite core modules.
+        Array reference of prerequisite core modules.
 
-- `$miss`
+    - `$miss`
 
-    Array reference of missed modules.
+        Array reference of missed modules.
 
-`%option` may be:
+    `%option` may be:
 
-- inc
+    - inc
 
-    The search path of modules. Default: `\@INC`.
+        The search path of modules. Default: `\@INC`.
 
-### `my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path, %option)`
+- `my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path, %option)`
 
-This is convenient method, which gathers prerequisite distributions by modules stated in `cpanfile`.
-The return values and `%option` are the same as the `gather` method.
+    This is convenient method, which gathers prerequisite distributions by modules stated in `cpanfile`.
+    The return values and `%option` are the same as the `gather` method.
 
 # SEE ALSO
 

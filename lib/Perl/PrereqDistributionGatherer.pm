@@ -95,11 +95,13 @@ Perl::PrereqDistributionGatherer gathers all prerequisite distributions for some
 
 =head1 METHODS
 
-=head3 C<< my $gatherer = Perl::PrereqDistributionGatherer->new >>
+=over 4
+
+=item * C<< my $gatherer = Perl::PrereqDistributionGatherer->new >>
 
 Constructor. Currently any arguments are ignored.
 
-=head3 C<< my ($dists, $core, $miss) = $gatherer->gather($modules, %option) >>
+=item * C<< my ($dists, $core, $miss) = $gatherer->gather($modules, %option) >>
 
 Gatherer distributions which are prerequisite for C<$modules>.
 The return values are:
@@ -130,10 +132,12 @@ The search path of modules. Default: C<\@INC>.
 
 =back
 
-=head3 C<< my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path, %option) >>
+=item * C<< my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path, %option) >>
 
 This is convenient method, which gathers prerequisite distributions by modules stated in C<cpanfile>.
 The return values and C<%option> are the same as the C<gather> method.
+
+=back
 
 =head1 SEE ALSO
 
