@@ -19,11 +19,19 @@ Perl::PrereqDistributionGatherer gathers all prerequisite distributions for some
 
 # METHODS
 
-- `my $gatherer = Perl::PrereqDistributionGatherer->new`
+- `my $gatherer = Perl::PrereqDistributionGatherer->new(%option)`
 
-    Constructor. Currently any arguments are ignored.
+    Constructor. `%option` may be:
 
-- `my ($dists, $core, $miss) = $gatherer->gather($modules, %option)`
+    - inc
+
+        The search path of modules. Default: `\@INC`.
+
+    - fill\_archlib
+
+        If this is true, then prepend archlib to inc directories.
+
+- `my ($dists, $core, $miss) = $gatherer->gather($modules)`
 
     Gatherer distributions which are prerequisite for `$modules`.
     The return values are:
@@ -40,16 +48,10 @@ Perl::PrereqDistributionGatherer gathers all prerequisite distributions for some
 
         Array reference of missed modules.
 
-    `%option` may be:
-
-    - inc
-
-        The search path of modules. Default: `\@INC`.
-
-- `my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path, %option)`
+- `my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path)`
 
     This is convenient method, which gathers prerequisite distributions by modules stated in `cpanfile`.
-    The return values and `%option` are the same as the `gather` method.
+    The return values is the same as the `gather` method.
 
 # SEE ALSO
 

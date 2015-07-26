@@ -8,10 +8,13 @@ use Perl::PrereqDistributionGatherer;
 use Pod::Usage;
 sub say { print @_, "\n" }
 
+@ARGV = map { /^(-I)(.+)/ ? ($1, $2) : $_ } @ARGV;
+
 GetOptions
     "h|help" => sub { pod2usage },
     "f|format=s" => \(my $format = "plain"),
-or pod2usage(1);
+    "I=s@" => \(my $include = []),
+or exit 1;
 
 my ($method, $arg)
     = @ARGV ? ("gather", \@ARGV) : ("gather_from_cpanfile", "cpanfile");
@@ -19,7 +22,7 @@ my ($method, $arg)
 $arg eq "cpanfile" && !-f "cpanfile"
     and do { warn "cpanfile or module arguments are required.\n"; pod2usage(1) };
 
-my $gatherer = Perl::PrereqDistributionGatherer->new;
+my $gatherer = Perl::PrereqDistributionGatherer->new(inc => [@$include, @INC], fill_archlib => 1);
 my ($dists, $core, $miss) = $gatherer->$method($arg);
 
 if ($format eq "json") {
@@ -54,14 +57,15 @@ prereq-dist-dump.pl - dump prereq distributions
     > prereq-dist-dump.pl [--format json] [MODULES]
 
     Options:
+    -I directory        prepend include directories
     -f, --format json   output json
     -h, --help          show this help
 
     Eg:
-    > perl dump.pl
+    > perl prereq-dist-dump.pl -I local/lib/perl5
     # dump cpanfile prereq distributions
 
-    > perl dump.pl Plack Moose
+    > perl prereq-dist-dump.pl Plack Moose
     # dump Plack and Moose prereq distributions
 
 =cut

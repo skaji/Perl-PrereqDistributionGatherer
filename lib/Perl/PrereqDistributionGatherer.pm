@@ -4,21 +4,24 @@ use strict;
 use warnings;
 use CPAN::Meta::Requirements;
 use CPAN::Meta;
-use Distribution::Metadata;
+use Distribution::Metadata::Factory;
 use Module::CPANfile;
 
 our $VERSION = "0.01";
 
 sub new {
-    bless {}, shift;
+    my ($class, %option) = @_;
+    my $factory = Distribution::Metadata::Factory->new(
+        inc => $option{inc} || \@INC, fill_archlib => $option{fill_archlib}
+    );
+    bless { factory => $factory }, $class;
 }
 
 sub gather {
-    my ($self, $modules, %option) = @_;
-    my $inc = $option{inc} || \@INC;
+    my ($self, $modules) = @_;
     my (@dist, %core, %missing, %seen);
     for my $module (@$modules) {
-        $self->_gather(\@dist, $module, $inc, \%core, \%missing, \%seen);
+        $self->_gather(\@dist, $module, \%core, \%missing, \%seen);
     }
     return (
         [ sort { $a->distvname cmp $b->distvname } @dist ],
@@ -28,24 +31,22 @@ sub gather {
 }
 
 sub gather_from_cpanfile {
-    my ($self, $cpanfile, %option) = @_;
+    my ($self, $cpanfile) = @_;
     my @module = Module::CPANfile->load($cpanfile)
         ->merged_requirements->required_modules;
-    $self->gather( \@module, %option );
+    $self->gather(\@module);
 }
 
 # TODO: gather distributions as tree
 sub _gather {
-    my ($self, $result, $module, $inc, $core, $missing, $seen) = @_;
+    my ($self, $result, $module, $core, $missing, $seen) = @_;
 
     return if $module eq "perl";
     return if $core->{ $module };
     return if $missing->{ $module };
     return if $seen->{ $module }++;
 
-    my $dist = Distribution::Metadata->new_from_module(
-        $module, inc => $inc,
-    );
+    my $dist = $self->{factory}->create_from_module($module);
     if ( ($dist->name || "") eq "perl" ) {
         $core->{ $module }++;
         return;
@@ -65,7 +66,7 @@ sub _gather {
     $reqs->add_requirements($prereqs->requirements_for($_, 'requires'))
         for qw( configure build runtime );
     for my $module ($reqs->required_modules) {
-        $self->_gather( $result, $module, $inc, $core, $missing, $seen );
+        $self->_gather( $result, $module, $core, $missing, $seen );
     }
 }
 
@@ -97,11 +98,23 @@ Perl::PrereqDistributionGatherer gathers all prerequisite distributions for some
 
 =over 4
 
-=item * C<< my $gatherer = Perl::PrereqDistributionGatherer->new >>
+=item * C<< my $gatherer = Perl::PrereqDistributionGatherer->new(%option) >>
 
-Constructor. Currently any arguments are ignored.
+Constructor. C<%option> may be:
 
-=item * C<< my ($dists, $core, $miss) = $gatherer->gather($modules, %option) >>
+=over 4
+
+=item * inc
+
+The search path of modules. Default: C<\@INC>.
+
+=item * fill_archlib
+
+If this is true, then prepend archlib to inc directories.
+
+=back
+
+=item * C<< my ($dists, $core, $miss) = $gatherer->gather($modules) >>
 
 Gatherer distributions which are prerequisite for C<$modules>.
 The return values are:
@@ -122,20 +135,10 @@ Array reference of missed modules.
 
 =back
 
-C<%option> may be:
-
-=over 4
-
-=item * inc
-
-The search path of modules. Default: C<\@INC>.
-
-=back
-
-=item * C<< my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path, %option) >>
+=item * C<< my ($dists, $core, $miss) = $gatherer->gather_from_cpanfile($cpanfile_path) >>
 
 This is convenient method, which gathers prerequisite distributions by modules stated in C<cpanfile>.
-The return values and C<%option> are the same as the C<gather> method.
+The return values is the same as the C<gather> method.
 
 =back
 
