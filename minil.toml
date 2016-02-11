@@ -1,6 +1,0 @@
-name = "Perl-PrereqDistributionGatherer"
-# badges = ["travis"]
-authority="cpan:SKAJI"
-
-module_maker="ModuleBuildTiny"
-
